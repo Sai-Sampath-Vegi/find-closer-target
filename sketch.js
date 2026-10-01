@@ -1,60 +1,72 @@
 const r = require("raylib");
-const geometry = require("./geometry");
 
-const windowWidth = 800;
-const windowHeight = 600;
-const windowTitle = "Find the Closer Target";
+const window = {
+	width: 800,
+	height: 600,
+	title: "Find the Closer Target",
+};
 
 const FPS = 60;
 
-const sourceX = 290;
-const sourceY = 80;
-const sourceRadius = 50;
-const sourceColor = r.BLUE;
+const source = {
+	x: 290,
+	y: 80,
+	radius: 50,
+	color: r.BLUE,
+};
 
-const targetOneX = 350;
-const targetOneY = 230;
-const targetOneRadius = 40;
-const targetOneColor = r.RED;
+const targetOne = {
+	x: 350,
+	y: 230,
+	radius: 40,
+	color: r.RED,
+};
 
-const targetTwoX = 200;
-const targetTwoY = 290;
-const targetTwoRadius = 60;
-const targetTwoColor = r.GREEN;
+const targetTwo = {
+	x: 200,
+	y: 290,
+	radius: 60,
+	color: r.GREEN,
+};
 
 const lineColor = r.BLACK;
 
 function running() { return !r.WindowShouldClose(); }
 
 function setup() {
-	r.InitWindow(windowWidth, windowHeight, windowTitle);
+	r.InitWindow(window.width, window.height, window.title);
 	r.SetTargetFPS(FPS);
 }
 
 function update() { }
 
-function drawSource() {
-	r.DrawCircle(sourceX, sourceY, sourceRadius, sourceColor);
+function drawCircleObject(object) {
+	if (!object) return;
+	r.DrawCircleV(object, object.radius, object.color);
 }
 
-function drawTargets() {
-	r.DrawCircle(targetOneX, targetOneY, targetOneRadius, targetOneColor);
-	r.DrawCircle(targetTwoX, targetTwoY, targetTwoRadius, targetTwoColor);
+function drawTargets(targetOne, targetTwo) {
+	drawCircleObject(targetOne);
+	drawCircleObject(targetTwo);
 }
 
-function drawConnector(sourceX, sourceY, targetOneX, targetOneY, targetTwoX, targetTwoY, lineColor) {
-	const distanceBetweenSourceAndtargetOne = geometry.getDistance(sourceX, sourceY, targetOneX, targetOneY);
-	const distanceBetweenSourceAndtargetTwo = geometry.getDistance(sourceX, sourceY, targetTwoX, targetTwoY);
+function drawSource(source) {
+	drawCircleObject(source);
+}
 
-	let targetX = targetOneX;
-	let targetY = targetOneY;
+function drawConnector(source, targetOne, targetTwo, lineColor) {
+	const distanceOne = r.Vector2Distance(source, targetOne);
+	const distanceTwo = r.Vector2Distance(source, targetTwo);
 
-	if (distanceBetweenSourceAndtargetOne > distanceBetweenSourceAndtargetTwo) {
-		targetX = targetTwoX;
-		targetY = targetTwoY;
+	let targetX = targetOne.x;
+	let targetY = targetOne.y;
+
+	if (distanceOne > distanceTwo) {
+		targetX = targetTwo.x;
+		targetY = targetTwo.y;
 	}
 
-	r.DrawLine(sourceX, sourceY, targetX, targetY, lineColor);
+	r.DrawLineV(source, { x: targetX, y: targetY }, lineColor);
 }
 
 function draw() {
@@ -62,11 +74,11 @@ function draw() {
 
 	r.ClearBackground(r.WHITE);
 
-	drawSource();
+	drawSource(source);
 
-	drawTargets();
+	drawTargets(targetOne, targetTwo);
 
-	drawConnector(sourceX, sourceY, targetOneX, targetOneY, targetTwoX, targetTwoY, lineColor);
+	drawConnector(source, targetOne, targetTwo, lineColor);
 
 	r.EndDrawing();
 }
